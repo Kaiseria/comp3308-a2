@@ -1,0 +1,17 @@
+=== Classifier model (full training set) ===
+MyDT+ tree
+------------------
+
+serum_creatinine = high
+|   serum_sodium = normal: survived (39.0/17.0)
+|   serum_sodium = low: died (38.0/10.0)
+|   serum_sodium = high: died (1.0)
+serum_creatinine = normal
+|   ejection_fraction = borderline: survived (18.0/6.0)
+|   ejection_fraction = low: survived (104.0/31.0)
+|   ejection_fraction = normal: survived (28.0/4.0)
+|   ejection_fraction = mildly-low: survived (44.0/3.0)
+serum_creatinine = low: survived (1.0)
+
+Number of Leaves  :	8
+Size of the tree :	11

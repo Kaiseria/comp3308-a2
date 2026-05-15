@@ -1,6 +1,10 @@
 import csv
 
+# MyKNN is the baseline k-nearest neighbour classifier. It treats every
+# selected neighbour equally during voting.
+
 def classify_knn(training_filename, testing_filename, k):
+    """Classify each testing row using unweighted k-nearest neighbours."""
 
     training_data = []
     testing_data = []
@@ -18,6 +22,8 @@ def classify_knn(training_filename, testing_filename, k):
     for row in testing_data:
         distances = []
 
+        # Use simple categorical distance: one point for each differing
+        # attribute value.
         for index, data in enumerate(training_data):
             distance = 0
 
@@ -26,6 +32,8 @@ def classify_knn(training_filename, testing_filename, k):
                     distance += 1
         
             distances.append([distance, index, data[-1]])
+
+        # Sort by distance, then by original training order for stable ties.
         distances.sort(key=lambda x: (x[0], x[1]))
 
         distances = distances[:k]
@@ -48,6 +56,7 @@ def classify_knn(training_filename, testing_filename, k):
     return result
 
 def read_folds(folds_filename):
+    """Read the assignment fold file into ten stratified folds."""
 
     folds = []
 
@@ -82,6 +91,7 @@ def read_folds(folds_filename):
     return folds
 
 def write_csv(filename, rows):
+    """Write rows to a temporary CSV file."""
 
     with open(filename, "w", newline="") as f:
 
@@ -90,6 +100,7 @@ def write_csv(filename, rows):
         writer.writerows(rows)
 
 def evaluate_knn_10fold(folds_filename, k):
+    """Evaluate MyKNN with stratified 10-fold cross-validation."""
 
     folds = read_folds(folds_filename)
 
@@ -107,8 +118,7 @@ def evaluate_knn_10fold(folds_filename, k):
 
                 training.extend(folds[j])
 
-        # test file should NOT include class label
-
+        # The classifier should predict the class, so remove it from testing.
         testing_without_class = []
 
         for row in testing_with_class:

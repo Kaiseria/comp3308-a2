@@ -1,6 +1,10 @@
 import csv
 
+# MyKNN+ uses the same Hamming-style distance as MyKNN, but it gives
+# closer neighbours more influence during voting.
+
 def classify_knn(training_filename, testing_filename, k):
+    """Classify each testing row using distance-weighted k-nearest neighbours."""
 
     training_data = []
 
@@ -28,6 +32,7 @@ def classify_knn(training_filename, testing_filename, k):
 
         distances = []
 
+        # Count how many categorical attributes differ between two patients.
         for index, data in enumerate(training_data):
 
             distance = 0
@@ -42,6 +47,8 @@ def classify_knn(training_filename, testing_filename, k):
 
             distances.append([distance, index, data[-1]])
 
+        # Sort by distance first. The original row index is a deterministic
+        # tie-breaker when two training instances have the same distance.
         distances.sort(key=lambda x: (x[0], x[1]))
 
         nearest = distances[:k]
@@ -56,6 +63,9 @@ def classify_knn(training_filename, testing_filename, k):
 
             label = item[-1]
 
+            # DT/KNN+ modification: closer neighbours get larger weights.
+            # The +0.25 avoids division by zero and gives exact matches
+            # a strong but finite vote.
             weight = 1 / (distance + 0.25)
 
             if label == "died":
@@ -77,6 +87,7 @@ def classify_knn(training_filename, testing_filename, k):
     return result
 
 def read_folds(folds_filename):
+    """Read the provided stratified folds file into a list of folds."""
 
     folds = []
 
@@ -111,6 +122,7 @@ def read_folds(folds_filename):
     return folds
 
 def write_csv(filename, rows):
+    """Write temporary train/test files used by the existing classifier API."""
 
     with open(filename, "w", newline="") as f:
 
@@ -119,6 +131,7 @@ def write_csv(filename, rows):
         writer.writerows(rows)
 
 def evaluate_knn_10fold(folds_filename, k):
+    """Evaluate MyKNN+ using stratified 10-fold cross-validation."""
 
     folds = read_folds(folds_filename)
 
@@ -136,8 +149,7 @@ def evaluate_knn_10fold(folds_filename, k):
 
                 training.extend(folds[j])
 
-        # test file should NOT include class label
-
+        # The testing file must not contain the class label.
         testing_without_class = []
 
         for row in testing_with_class:
