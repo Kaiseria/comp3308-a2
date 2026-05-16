@@ -9,7 +9,7 @@
 \linespread{1.2}
 
 \title{COMP3308 Assignment 2 Part 2: Report}
-\author{Student 1: \textless SID: 540314324\textgreater \\ Student 2: \textless SID\textgreater}
+\author{Student 1: \textless SID: 540314324\textgreater \\ Student 2: \textless SID: 540108295\textgreater}
 \date{}
 
 \begin{document}
@@ -114,6 +114,15 @@ Specifically, our MyDT+ showed a trade-off. It improved overall accuracy and pre
 
 \subsection{Discussion}
 \subsubsection{Comparison of MyKNN, MyKNN+, MyDT and MyDT+}
+MyKNN+ was developed to improve the original MyKNN algorithm by changing the voting method. In MyKNN, the distance between a testing instance and each training instance was calculated by counting how many attribute values were different. After sorting the training instances by distance, the k nearest neighbours were selected. However, each selected neighbour had the same voting power, regardless of whether it was very close or relatively far from the testing instance. This could be a weakness because a patient that is almost identical to the testing patient should logically provide stronger evidence than a patient that only happens to be included among the nearest neighbours.
+
+For this reason, we changed MyKNN into MyKNN+ by using distance-weighted voting. We kept the same distance calculation so that the comparison between MyKNN and MyKNN+ would be fair, but changed the voting score so that closer neighbours had more influence. The weight was calculated as 1 / (distance + 0.25). The value 0.25 was added to avoid division by zero when the distance was 0, while still giving an exact or very close match a strong vote. For example, a neighbour with distance 0 receives a weight of 4, while a neighbour with distance 3 receives only about 0.31. This means the prediction is influenced more by patients with very similar medical attributes.
+
+This modification was motivated by the nature of the heart failure dataset. Since each instance represents a patient, it is reasonable to assume that patients with more similar attribute values may have more similar outcomes. If all neighbours vote equally, the prediction may be affected too much by less similar patients, especially when the dataset is small and the selected k neighbours may include some noisy or less relevant cases. Distance-weighted voting was therefore used to reduce the influence of these weaker neighbours and make the prediction more sensitive to the closest matches.
+
+The results showed that this modification improved the model. MyKNN achieved an accuracy of 63.37\%, while MyKNN+ improved to 67.40\%. This increase suggests that the original equal-voting method was not using the distance information effectively after selecting the nearest neighbours. By giving more importance to closer neighbours, MyKNN+ was able to make better predictions overall. However, the improvement was moderate rather than very large, which indicates that distance weighting helped but did not fully solve the limitations of KNN on this dataset.
+
+One possible reason is that many attributes in the dataset are categorical or discretised into groups, so the distance measure only counts whether values are the same or different. This simple distance measure may not fully capture medical similarity between patients. Also, because the dataset is small and moderately imbalanced, KNN may still struggle to identify the minority died class. Therefore, the result indicates that distance-weighted voting was a useful improvement, but KNN was still less suitable for this dataset than stronger models such as SMO, OneR, and the pruned decision tree.
 
 MyDT+ was developed to improve the performance of the original MyDT algorithm by reducing overfitting and improving attribute selection. We made two main modifications. In MyDT+, we used Gain Ratio rather than Information Gain as the standard of selecting branches. The other change is we applied pruning to MyDT+.
 
@@ -126,6 +135,11 @@ This indicates that limiting tree complexity successfully improved model perform
 These results suggest that the model is not becoming better by increasing the complexity of trees. Simpler decision trees generalised better than highly detailed trees. Therefore, the modifications introduced in DT+ were effective in reducing overfitting, although the optimal performance depended strongly on selecting an appropriate pruning depth.
 
 \subsubsection{Comparison with Weka Classifiers}
+For the KNN classifiers, Weka KNN performed better than both MyKNN and MyKNN+. Weka KNN achieved an accuracy of 70.70\%, while MyKNN achieved 63.37\% and MyKNN+ achieved 67.40\%. This shows that our distance-weighted modification improved the original MyKNN, but it was still not as strong as Weka's implementation.
+
+One reason for this difference is that Weka KNN is a more developed implementation and may handle distance calculation, normalisation, tie-breaking, and parameter settings more effectively. In comparison, our MyKNN used a simple distance method that counted how many attribute values were different. This method is easy to understand, but it may not fully capture the medical similarity between patients, especially when the dataset contains discretised or categorical attributes.
+
+The comparison indicates that MyKNN+ was a useful improvement over MyKNN, because giving closer neighbours more influence increased the accuracy. However, the lower result compared with Weka KNN suggests that the performance of KNN depends strongly on the distance function and implementation details. Therefore, while our KNN+ modification improved the model, there is still room for further improvement, such as testing different values of k, using a better distance measure, or applying attribute weighting.
 
 Although both MyDT and Weka DT were based on the same fundamental decision tree learning principles, their performance differed. My DT has an accuracy at 63.8\% while Weka J48 unpruned has 65.9\%. This is mainly because in My DT, we used a simple recursive splitting process based on Information Gain while Weka used other criteria to improve performance.
 
@@ -161,7 +175,7 @@ For future work, several improvements could be explored. On the one hand, we may
 
 In this assignment, I learned how to applied the models in the lectures to Python programs and solved some coding programs. This connects my knowledge to real practicing and improved my ability on coding. Moreover, I learned that more complex models are not always better. We should choose the best model based on the dataset and the nature of the data to make prediction.
 
-\textbf{Student 2: \textless SID\textgreater}
+\textbf{Student 2: \textless SID: 540108295\textgreater}
 
 Write your reflection here.
 
@@ -177,9 +191,12 @@ I have used ChatGPT-5.5 for the assignment. I used AI to:
 
 - Normalising Python program comments
 
-\textbf{Student 2: \textless SID\textgreater}
+\textbf{Student 2: \textless SID: 540108295\textgreater}
 
-Write your AI-use acknowledgement here, or state: No AI tools were used in this assignment.
+
+I used ChatGPT-5.5 to help improve the wording, grammar and structure of parts of the report.
+I also used it to help explain some machine learning concepts, such as cross-validation, pruning, precision, recall and F1-measure. Also help guiding with suggestions and method through testing 
+All generated content was reviewed and edited before being included in the final submission.
 
 \appendix
 \section*{Appendix A: Code for KNN+}
